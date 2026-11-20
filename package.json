@@ -1,0 +1,14 @@
+{
+  "name": "projeto-cursos",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "shared",
+    "api",
+    "frontend"
+  ],
+  "scripts": {
+    "build:shared": "npm run build --workspace=@projeto/shared",
+    "dev:shared": "npm run watch --workspace=@projeto/shared"
+  }
+}

@@ -1,0 +1,25 @@
+version: "3.8"
+
+services:
+  # Serviço do banco de dados relacional
+  postgres:
+    # Imagem oficial e leve (Alpine Linux) do PpostgreSQL 16
+    image: postgres:16-alpine
+    container_name: projeto_cursos_pg
+    # Reinicia o container automaticamente caso ele caia ou o Docker reinicie
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgrespassword
+      POSTGRES_DB: projeto_cursos_db
+    ports:
+      # Mapeia a porta [máquina host]:[porta interna do container]
+      - "5432:5432"
+    volumes:
+      # Garante a persistência dos dados: se o container for destruído, os dados continuam salvos
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  # volume nomeado gerenciado pelo Docker
+  pgdata:
+    driver: local

@@ -1,0 +1,18 @@
+# Dependências
+node_modules/
+
+# Builds
+dist/
+build/
+.next/
+
+# Variáveis de ambiente
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# Logs e arquivos do sistema
+*.log
+.DS_Store
+Thumbs.db

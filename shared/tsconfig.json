@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "target": "ES2022", // JavaScript moderno gerado
+    "module": "CommonJS", // Padrão amplamente compatível no ecossistema Node
+    "moduleResolution": "node",
+    "declaration": true, // Gera os arquivos .d.ts com as tipagens
+    "declarationMap": true, // Mapeia os .d.ts para os .ts originais (ajuda no Ctrl+Click no VS Code)
+    "outDir": "./dist", // Pasta onde o código compilado é colocado
+    "rootDir": "./src", // Pasta onde está o código-fonte TypeScript
+    "strict": true, // Ativa todas as verificações estritas de tipo
+    "esModuleInterop": true, // Facilita importações de módulos CommonJS
+    "skipLibCheck": true, // Pula checagem de tipos de bibliotecas em node_modules (build mais rápido)
+    "forceConsistentCasingInFileNames": true
+  },
+  "include": ["src/**/*"]
+}
