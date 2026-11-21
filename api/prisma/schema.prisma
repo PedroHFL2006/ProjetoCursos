@@ -1,0 +1,114 @@
+// Configuração do gerador do Prisma Client em TypeScript
+generator client {
+    provider = "prisma-client-js"
+}
+
+// Conexão com o banco de dados PostgreSQL
+datasource db {
+    provider = "postgresql"
+    url = env("DATABASE_URL")
+}
+
+// ----------------------------------------------------
+// ENUMS (Idênticos aos definidos no pacote shared)
+// ----------------------------------------------------
+
+enum Role {
+    ADMIN
+    PROFESSOR
+    ALUNO
+}
+
+enum StatusInscricao {
+    PENDENTE
+    ATIVA
+    CANCELADA
+    CONCLUIDA
+}
+
+// ----------------------------------------------------
+// MODELS (Tabelas)
+// ----------------------------------------------------
+
+// Tabela principal de autenticação e dados cadastrais
+model Usuario {
+    id              String      @id @default(uuid())
+    nome            String
+    email           String      @unique
+    senha           String      // Armazenará o hash da senha (bcrypt)
+    role            Role        @default(ALUNO)
+    criadoEm        DateTime    @default(now())
+    atualizadoEm    DateTime    @updatedAt
+
+    // Relações 1 para 1 opcionais com os perfis específicos
+    professor Professor?
+    aluno Aluno?
+
+    @@map("usuarios")
+}
+
+// Perfil de professor vinculado em Usuario
+model Professor {
+    id              String      @id @default(uuid())
+    usuarioId       String      @unique
+    usuario         Usuario     @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+    biografia       String?     @db.Text
+    especialidade   String
+    criadoEm        DateTime    @default(now())
+    atualizadoEm    DateTime    @updatedAt
+
+    // Um professor pode ministrar múltiplos cursos
+    cursos Curso[]
+
+    @@map("professores")
+}
+
+// Perfil de aluno vinculado a um Usuario
+model Aluno {
+    id String @id @default(uuid())
+  usuarioId    String      @unique
+  usuario      Usuario     @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  matricula    String      @unique
+  criadoEm     DateTime    @default(now())
+  atualizadoEm DateTime    @updatedAt
+
+  // Um aluno pode ter múltiplas inscrições
+  inscricoes   Inscricao[]
+
+  @@map("alunos")
+}
+
+// Cursos cadastrados na plataforma
+model Curso {
+  id           String      @id @default(uuid())
+  titulo       String
+  descricao    String      @db.Text
+  cargaHoraria Int
+  preco        Decimal     @db.Decimal(10, 2)
+  publicado    Boolean     @default(false)
+
+  // Relação com o Professor responsável
+  professorId  String
+  professor    Professor   @relation(fields: [professorId], references: [id], onDelete: Restrict)
+  criadoEm     DateTime    @default(now())
+  atualizadoEm DateTime    @updatedAt
+  inscricoes   Inscricao[]
+
+  @@map("cursos")
+}
+
+// Tabela associativa: Inscrição de um Aluno em um Curso
+model Inscricao {
+  id            String          @id @default(uuid())
+  alunoId       String
+  aluno         Aluno           @relation(fields: [alunoId], references: [id], onDelete: Cascade)
+  cursoId       String
+  curso         Curso           @relation(fields: [cursoId], references: [id], onDelete: Cascade)
+  status        StatusInscricao @default(PENDENTE)
+  dataMatricula DateTime        @default(now())
+  concluidoEm   DateTime?
+
+  // REGRA DE OURO: O mesmo aluno não pode se inscrever duas vezes no mesmo curso
+  @@unique([alunoId, cursoId])
+  @@map("inscricoes")
+}

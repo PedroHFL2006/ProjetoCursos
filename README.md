@@ -76,7 +76,7 @@ Suba o container do banco de dados em segundo plano:
 docker compose up -d
 ```
 
-> O PostgreSQL ficará disponível na porta padrão `5432`. Os dados são persistidos através do volume `pgdata`.
+> O PostgreSQL ficará disponível na porta padrão `5433`. Os dados são persistidos através do volume `pgdata`.
 
 ### 3. Compilar o Pacote Shared
 
@@ -106,6 +106,6 @@ npm run dev:shared
 ## 📌 Próximos Passos (Roadmap)
 
 - [x] **Etapa 1:** Fundação do Monorepo, Docker com PostgreSQL e Schemas compartilhados (`shared`).
-- [ ] **Etapa 2:** Inicialização da API (Fastify/Express), conexão com o PostgreSQL via ORM e autenticação JWT.
+- [x] **Etapa 2:** Inicialização da API (Fastify/Express), conexão com o PostgreSQL via ORM e autenticação JWT.
 - [ ] **Etapa 3:** Desenvolvimento dos endpoints da API e regras de negócio.
 - [ ] **Etapa 4:** Inicialização e desenvolvimento do Frontend consumindo os schemas do `shared`.
