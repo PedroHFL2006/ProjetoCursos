@@ -2,6 +2,8 @@ import { Prisma } from "@prisma/client";
 import type { ErrorRequestHandler } from "express";
 import { ZodError } from "zod";
 
+import { HttpError } from "../errors/HttpError";
+
 export const errorHandler: ErrorRequestHandler = (
   error: unknown,
   _request,
@@ -20,6 +22,13 @@ export const errorHandler: ErrorRequestHandler = (
         field: issue.path.map(String).join(".") || "body",
         message: issue.message,
       })),
+    });
+  }
+
+  if (error instanceof HttpError) {
+    return response.status(error.statusCode).json({
+      message: error.message,
+      error: error.code,
     });
   }
 
