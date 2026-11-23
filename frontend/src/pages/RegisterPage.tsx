@@ -58,8 +58,11 @@ export function RegisterPage() {
   }
 
   return (
-    <main className="auth-page">
-      <section className="auth-card" aria-labelledby="register-title">
+    <main className="auth-page relative isolate grid min-h-screen place-items-center overflow-hidden">
+      <section
+        className="auth-card w-full max-w-[420px] rounded-2xl border border-white/10 p-8 backdrop-blur-xl"
+        aria-labelledby="register-title"
+      >
         <div className="auth-heading">
           <div className="brand-mark" aria-hidden="true">C</div>
           <h1 id="register-title">Create account</h1>
@@ -128,7 +131,11 @@ export function RegisterPage() {
             </p>
           )}
 
-          <button className="primary-button" type="submit" disabled={isSubmitting}>
+          <button
+            className="primary-button h-10 w-full rounded-lg transition-all"
+            type="submit"
+            disabled={isSubmitting}
+          >
             {isSubmitting ? "Creating account..." : "Create account"}
             {!isSubmitting && <ArrowRight size={17} aria-hidden="true" />}
           </button>

@@ -20,7 +20,7 @@ export function HomePage() {
   const { session, logout } = useAuth();
 
   return (
-    <main className="workspace-page">
+    <main className="workspace-page min-h-screen">
       <header className="workspace-header">
         <Link className="workspace-brand" to="/">
           <span className="brand-mark">C</span>

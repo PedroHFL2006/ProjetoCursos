@@ -14,7 +14,7 @@ export function ResourcePage() {
 
   if (!title) {
     return (
-      <main className="workspace-page">
+      <main className="workspace-page min-h-screen">
         <section className="workspace-content">
           <h1>Página não encontrada</h1>
           <Link className="text-link" to="/">Voltar ao início</Link>
@@ -24,7 +24,7 @@ export function ResourcePage() {
   }
 
   return (
-    <main className="workspace-page">
+    <main className="workspace-page min-h-screen">
       <section className="workspace-content">
         <Link className="back-link" to="/">
           <ArrowLeft size={16} aria-hidden="true" />
