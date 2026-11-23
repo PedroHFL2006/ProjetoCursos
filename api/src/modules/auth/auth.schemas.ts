@@ -1,4 +1,5 @@
 import { criarUsuarioSchema } from "@projeto/shared";
+import { z } from "zod";
 
 const registerBaseSchema = criarUsuarioSchema.omit({ role: true });
 
@@ -15,4 +16,12 @@ export const registerSchema = registerBaseSchema
   })
   .strict();
 
+export const loginSchema = z
+  .object({
+    email: z.string().trim().email("E-mail inválido").toLowerCase(),
+    senha: z.string().min(1, "A senha é obrigatória"),
+  })
+  .strict();
+
 export type RegisterInput = typeof registerSchema._output;
+export type LoginInput = z.infer<typeof loginSchema>;

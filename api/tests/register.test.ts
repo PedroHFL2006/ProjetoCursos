@@ -86,4 +86,39 @@ describe("POST /auth/register", () => {
     assert.equal(duplicateResponse.status, 400);
     assert.equal(duplicateBody.error, "DUPLICATE_RECORD");
   });
+
+  it("autentica com senha correta e rejeita credenciais inválidas", async () => {
+    const invalidPassword = await fetch(`${baseUrl}/auth/login`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ email, senha: "senha-incorreta" }),
+    });
+    const unknownUser = await fetch(`${baseUrl}/auth/login`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        email: `unknown-${randomUUID()}@example.test`,
+        senha: password,
+      }),
+    });
+
+    assert.equal(invalidPassword.status, 401);
+    assert.equal(unknownUser.status, 401);
+
+    const loginResponse = await fetch(`${baseUrl}/auth/login`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ email, senha: password }),
+    });
+    const body = (await loginResponse.json()) as {
+      token: string;
+      user: { id: string; nome: string; email: string; role: string; senha?: string };
+    };
+
+    assert.equal(loginResponse.status, 200);
+    assert.ok(body.token);
+    assert.equal(body.user.email, email);
+    assert.equal(body.user.role, "ALUNO");
+    assert.equal("senha" in body.user, false);
+  });
 });
