@@ -12,6 +12,8 @@ import { prisma } from "../src/config/prisma";
 
 const email = `register-${randomUUID()}@example.test`;
 const password = "test-password-123";
+let userId: string;
+let token: string;
 let baseUrl: string;
 let server: ReturnType<typeof app.listen> | undefined;
 
@@ -59,6 +61,7 @@ describe("POST /auth/register", () => {
     };
 
     assert.equal(registerResponse.status, 201);
+    userId = body.user.id;
     assert.equal(body.user.email, email);
     assert.equal("senha" in body.user, false);
 
@@ -117,8 +120,100 @@ describe("POST /auth/register", () => {
 
     assert.equal(loginResponse.status, 200);
     assert.ok(body.token);
+    token = body.token;
     assert.equal(body.user.email, email);
     assert.equal(body.user.role, "ALUNO");
     assert.equal("senha" in body.user, false);
+  });
+
+  it("protege o CRUD, limita alterações e permite excluir o próprio usuário", async () => {
+    const unauthenticated = await fetch(`${baseUrl}/usuarios`);
+    const invalidToken = await fetch(`${baseUrl}/usuarios`, {
+      headers: { authorization: "Bearer token-invalido" },
+    });
+
+    assert.equal(unauthenticated.status, 401);
+    assert.equal(invalidToken.status, 401);
+
+    const listResponse = await fetch(`${baseUrl}/usuarios`, {
+      headers: { authorization: `Bearer ${token}` },
+    });
+    const listBody = (await listResponse.json()) as {
+      users: Array<{ senha?: string }>;
+    };
+    assert.equal(listResponse.status, 200);
+    assert.ok(listBody.users.length > 0);
+    assert.ok(listBody.users.every((user) => !("senha" in user)));
+
+    const otherUserId = "00000000-0000-4000-8000-000000000001";
+    const forbiddenUpdate = await fetch(
+      `${baseUrl}/usuarios/${otherUserId}`,
+      {
+        method: "PUT",
+        headers: {
+          authorization: `Bearer ${token}`,
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({ nome: "Alteração não permitida" }),
+      },
+    );
+    const forbiddenDelete = await fetch(
+      `${baseUrl}/usuarios/${otherUserId}`,
+      {
+        method: "DELETE",
+        headers: { authorization: `Bearer ${token}` },
+      },
+    );
+    assert.equal(forbiddenUpdate.status, 403);
+    assert.equal(forbiddenDelete.status, 403);
+
+    const missingUser = await fetch(
+      `${baseUrl}/usuarios/00000000-0000-4000-8000-000000000002`,
+      { headers: { authorization: `Bearer ${token}` } },
+    );
+    assert.equal(missingUser.status, 404);
+
+    const updateResponse = await fetch(`${baseUrl}/usuarios/${userId}`, {
+      method: "PUT",
+      headers: {
+        authorization: `Bearer ${token}`,
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({
+        nome: "Nome atualizado",
+        senha: "updated-password-456",
+      }),
+    });
+    const updateBody = (await updateResponse.json()) as {
+      user: { nome: string; senha?: string };
+    };
+
+    assert.equal(updateResponse.status, 200);
+    assert.equal(updateBody.user.nome, "Nome atualizado");
+    assert.equal("senha" in updateBody.user, false);
+
+    const oldPasswordLogin = await fetch(`${baseUrl}/auth/login`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ email, senha: password }),
+    });
+    const newPasswordLogin = await fetch(`${baseUrl}/auth/login`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ email, senha: "updated-password-456" }),
+    });
+    assert.equal(oldPasswordLogin.status, 401);
+    assert.equal(newPasswordLogin.status, 200);
+
+    const deleteResponse = await fetch(`${baseUrl}/usuarios/${userId}`, {
+      method: "DELETE",
+      headers: { authorization: `Bearer ${token}` },
+    });
+    assert.equal(deleteResponse.status, 204);
+
+    const deletedUser = await fetch(`${baseUrl}/usuarios/${userId}`, {
+      headers: { authorization: `Bearer ${token}` },
+    });
+    assert.equal(deletedUser.status, 404);
   });
 });

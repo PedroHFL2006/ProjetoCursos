@@ -53,6 +53,13 @@ export const errorHandler: ErrorRequestHandler = (
         error: "NOT_FOUND",
       });
     }
+
+    if (error.code === "P2003") {
+      return response.status(409).json({
+        message: "O registro está relacionado a outros dados e não pode ser removido.",
+        error: "RELATION_CONFLICT",
+      });
+    }
   }
 
   console.error("Erro inesperado na API:", error);
