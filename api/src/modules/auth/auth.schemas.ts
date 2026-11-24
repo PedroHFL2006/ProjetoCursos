@@ -1,0 +1,27 @@
+import { criarUsuarioSchema } from "@projeto/shared";
+import { z } from "zod";
+
+const registerBaseSchema = criarUsuarioSchema.omit({ role: true });
+
+export const registerSchema = registerBaseSchema
+  .extend({
+    nome: registerBaseSchema.shape.nome
+      .trim()
+      .min(2, "O nome deve ter no mínimo 2 caracteres"),
+    email: registerBaseSchema.shape.email.trim().toLowerCase(),
+    senha: registerBaseSchema.shape.senha.min(
+      8,
+      "A senha deve ter no mínimo 8 caracteres",
+    ),
+  })
+  .strict();
+
+export const loginSchema = z
+  .object({
+    email: z.string().trim().email("E-mail inválido").toLowerCase(),
+    senha: z.string().min(1, "A senha é obrigatória"),
+  })
+  .strict();
+
+export type RegisterInput = typeof registerSchema._output;
+export type LoginInput = z.infer<typeof loginSchema>;
