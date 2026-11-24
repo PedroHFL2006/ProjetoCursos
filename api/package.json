@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "tsx watch src/server.ts",
     "build": "tsc",
-    "test": "npm run build --workspace=@projeto/shared && tsx --test tests/middlewares.test.ts tests/register.test.ts",
+    "test": "npm run build --workspace=@projeto/shared && tsx --test tests/middlewares.test.ts tests/register.test.ts tests/student-visibility.test.ts",
     "prisma:migrate": "prisma migrate dev",
     "prisma:generate": "prisma generate",
     "prisma:seed": "prisma db seed",

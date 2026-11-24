@@ -139,11 +139,16 @@ describe("POST /auth/register", () => {
       headers: { authorization: `Bearer ${token}` },
     });
     const listBody = (await listResponse.json()) as {
-      users: Array<{ senha?: string }>;
+      users: Array<{ id: string; senha?: string }>;
     };
     assert.equal(listResponse.status, 200);
-    assert.ok(listBody.users.length > 0);
+    assert.deepEqual(listBody.users.map((user) => user.id), [userId]);
     assert.ok(listBody.users.every((user) => !("senha" in user)));
+
+    const studentsResponse = await fetch(`${baseUrl}/alunos`, {
+      headers: { authorization: `Bearer ${token}` },
+    });
+    assert.equal(studentsResponse.status, 403);
 
     const otherUserId = "00000000-0000-4000-8000-000000000001";
     const forbiddenUpdate = await fetch(
@@ -171,7 +176,7 @@ describe("POST /auth/register", () => {
       `${baseUrl}/usuarios/00000000-0000-4000-8000-000000000002`,
       { headers: { authorization: `Bearer ${token}` } },
     );
-    assert.equal(missingUser.status, 404);
+    assert.equal(missingUser.status, 403);
 
     const updateResponse = await fetch(`${baseUrl}/usuarios/${userId}`, {
       method: "PUT",

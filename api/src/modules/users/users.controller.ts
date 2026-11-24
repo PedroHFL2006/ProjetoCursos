@@ -23,14 +23,20 @@ function parseUserId(value: unknown): string {
   return result.data;
 }
 
-export const listUsersController: RequestHandler = async (_request, response) => {
-  const users = await usersService.list();
+export const listUsersController: RequestHandler = async (
+  request,
+  response,
+) => {
+  const users = await usersService.list(getAuthenticatedUser(request));
   return response.status(200).json({ users });
 };
 
 export const getUserController: RequestHandler = async (request, response) => {
   const id = parseUserId(request.params.id);
-  const user = await usersService.findById(id);
+  const user = await usersService.findById(
+    id,
+    getAuthenticatedUser(request),
+  );
   return response.status(200).json({ user });
 };
 

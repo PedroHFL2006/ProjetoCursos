@@ -24,12 +24,40 @@ function assertCanManageUser(
   }
 }
 
+function assertCanViewUser(
+  authenticatedUser: { id: string; role: RoleUsuario },
+  targetUserId: string,
+): void {
+  if (
+    authenticatedUser.role !== "ADMIN" &&
+    authenticatedUser.id !== targetUserId
+  ) {
+    throw new HttpError(
+      403,
+      "FORBIDDEN",
+      "Você não tem permissão para visualizar este usuário.",
+    );
+  }
+}
+
 export const usersService = {
-  list(): Promise<UserRecord[]> {
-    return usersRepository.findAll();
+  async list(
+    authenticatedUser: { id: string; role: RoleUsuario },
+  ): Promise<UserRecord[]> {
+    if (authenticatedUser.role === "ADMIN") {
+      return usersRepository.findAll();
+    }
+
+    const user = await usersRepository.findById(authenticatedUser.id);
+    return user ? [user] : [];
   },
 
-  async findById(id: string): Promise<UserRecord> {
+  async findById(
+    id: string,
+    authenticatedUser: { id: string; role: RoleUsuario },
+  ): Promise<UserRecord> {
+    assertCanViewUser(authenticatedUser, id);
+
     const user = await usersRepository.findById(id);
     if (!user) {
       throw new HttpError(404, "NOT_FOUND", "O usuário não foi encontrado.");
