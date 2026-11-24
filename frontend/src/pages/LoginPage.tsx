@@ -1,11 +1,12 @@
 import { useState, type FormEvent } from "react";
-import { ArrowRight, Eye, EyeOff, LockKeyhole } from "lucide-react";
+import { ArrowRight, Eye, EyeOff } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 
 import { useAuth } from "../auth/useAuth";
 import type { AuthSession } from "../auth/session";
 import { loginFormSchema } from "../schemas/auth";
 import { api, getApiErrorMessage } from "../services/api";
+import { BrandLogo } from "../components/BrandLogo";
 
 interface LoginResponse extends AuthSession {
   message: string;
@@ -62,8 +63,8 @@ export function LoginPage() {
         aria-labelledby="login-title"
       >
         <div className="auth-heading">
-          <div className="brand-mark" aria-hidden="true"><LockKeyhole size={21} /></div>
-          <h1 id="login-title">Welcome back</h1>
+          <BrandLogo className="auth-logo" />
+          <h1 id="login-title">Bem Vindo</h1>
           <p>Entre na sua conta para continuar.</p>
         </div>
 
@@ -133,7 +134,7 @@ export function LoginPage() {
         </form>
 
         <p className="auth-footer">
-          Don&apos;t have an account? <Link to="/register">Create account</Link>
+           <Link to="/register">Não tem uma conta? Criar conta</Link>
         </p>
       </section>
     </main>

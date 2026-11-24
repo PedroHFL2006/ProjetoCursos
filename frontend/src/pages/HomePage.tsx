@@ -2,12 +2,12 @@ import {
   BookOpen,
   ClipboardList,
   GraduationCap,
-  LogOut,
   Users,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 
 import { useAuth } from "../auth/useAuth";
+import { WorkspaceHeader } from "../components/WorkspaceHeader";
 
 const navigation = [
   { label: "Professores", href: "/professores", icon: Users },
@@ -17,20 +17,17 @@ const navigation = [
 ];
 
 export function HomePage() {
-  const { session, logout } = useAuth();
+  const { session } = useAuth();
+  const visibleNavigation = navigation.filter(
+    ({ href }) =>
+      href !== "/alunos" ||
+      session?.user.role === "ADMIN" ||
+      session?.user.role === "PROFESSOR",
+  );
 
   return (
     <main className="workspace-page min-h-screen">
-      <header className="workspace-header">
-        <Link className="workspace-brand" to="/">
-          <span className="brand-mark">C</span>
-          <span>Cursos<span className="brand-accent">.</span></span>
-        </Link>
-        <button className="logout-button" onClick={logout} type="button">
-          <LogOut size={17} aria-hidden="true" />
-          Sair
-        </button>
-      </header>
+      <WorkspaceHeader />
 
       <section className="workspace-content">
         <p className="eyebrow">PAINEL DO ALUNO</p>
@@ -40,7 +37,7 @@ export function HomePage() {
         </p>
 
         <nav className="resource-grid" aria-label="Navegação principal">
-          {navigation.map(({ label, href, icon: Icon }) => (
+          {visibleNavigation.map(({ label, href, icon: Icon }) => (
             <Link className="resource-card" key={href} to={href}>
               <span className="resource-icon"><Icon size={20} /></span>
               <span>{label}</span>

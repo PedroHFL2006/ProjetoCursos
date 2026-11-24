@@ -1,9 +1,10 @@
 import { useState, type FormEvent } from "react";
-import { Apple, ArrowRight, Globe2 } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 
 import { registerFormSchema } from "../schemas/auth";
 import { api, getApiErrorMessage } from "../services/api";
+import { BrandLogo } from "../components/BrandLogo";
 
 interface FieldErrors {
   nome?: string;
@@ -64,8 +65,8 @@ export function RegisterPage() {
         aria-labelledby="register-title"
       >
         <div className="auth-heading">
-          <div className="brand-mark" aria-hidden="true">C</div>
-          <h1 id="register-title">Create account</h1>
+          <BrandLogo className="auth-logo" />
+          <h1 id="register-title">Registrar-se</h1>
           <p>Crie sua conta para acessar a plataforma de cursos livres.</p>
         </div>
 
@@ -140,23 +141,8 @@ export function RegisterPage() {
             {!isSubmitting && <ArrowRight size={17} aria-hidden="true" />}
           </button>
         </form>
-
-        <div className="divider"><span>or continue with</span></div>
-        <div className="social-buttons">
-          <button type="button" disabled title="Em breve">
-            <Globe2 size={17} aria-hidden="true" />
-            <span>Sign up with Google</span>
-            <small>Em breve</small>
-          </button>
-          <button type="button" disabled title="Em breve">
-            <Apple size={17} aria-hidden="true" />
-            <span>Sign up with Apple</span>
-            <small>Em breve</small>
-          </button>
-        </div>
-
         <p className="auth-footer">
-          Already have an account? <Link to="/login">Sign in</Link>
+          Jate tem uma conta? <Link to="/login">Entrar aqui</Link>
         </p>
       </section>
     </main>

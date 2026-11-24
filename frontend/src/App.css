@@ -14,6 +14,12 @@
     #0a090f;
 }
 
+.brand-logo {
+  display: block;
+  flex: 0 0 auto;
+  object-fit: contain;
+}
+
 .auth-page::before {
   position: absolute;
   z-index: 0;
@@ -80,20 +86,16 @@
   text-align: center;
 }
 
-.brand-mark {
-  display: grid;
-  width: 42px;
-  height: 42px;
-  place-items: center;
+.auth-logo {
+  display: block;
+  width: 58px;
+  height: 58px;
   margin: 0 auto 17px;
-  border: 1px solid rgba(196, 181, 253, 0.24);
-  border-radius: 14px;
-  background: linear-gradient(145deg, #8b5cf6, #6d28d9);
-  box-shadow: 0 8px 26px rgba(109, 40, 217, 0.36);
-  color: #fff;
-  font-size: 19px;
-  font-weight: 800;
+  object-fit: contain;
+  filter: drop-shadow(0 6px 18px rgba(168, 85, 247, 0.32));
 }
+
+
 
 .auth-heading h1,
 .workspace-content h1 {
@@ -362,12 +364,11 @@
   text-decoration: none;
 }
 
-.workspace-brand .brand-mark {
-  width: 32px;
-  height: 32px;
+.workspace-brand .workspace-logo {
+  width: 35px;
+  height: 35px;
   margin: 0;
-  border-radius: 10px;
-  font-size: 15px;
+  filter: drop-shadow(0 3px 10px rgba(168, 85, 247, 0.26));
 }
 
 .brand-accent {
@@ -478,6 +479,68 @@
   color: #d0bcff;
 }
 
+.student-list {
+  display: grid;
+  gap: 12px;
+  margin: 30px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.student-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 14px;
+  background: linear-gradient(145deg, rgba(25, 23, 35, 0.87), rgba(17, 16, 24, 0.78));
+}
+
+.student-avatar {
+  display: grid;
+  flex: 0 0 40px;
+  width: 40px;
+  height: 40px;
+  place-items: center;
+  border-radius: 12px;
+  background: rgba(124, 58, 237, 0.16);
+  color: #c4b5fd;
+  font-weight: 700;
+}
+
+.student-details {
+  display: grid;
+  min-width: 0;
+  gap: 5px;
+}
+
+.student-details strong {
+  color: #f0edf5;
+  font-size: 13px;
+}
+
+.student-details span,
+.student-registration,
+.student-list-message {
+  color: #aaa4b5;
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+
+.student-registration {
+  margin-left: auto;
+  text-align: right;
+}
+
+.student-list-message {
+  margin-top: 30px;
+}
+
+.student-list-error {
+  color: #fca5a5;
+}
+
 @keyframes card-enter {
   from {
     opacity: 0;
@@ -536,6 +599,18 @@
   .resource-card {
     min-height: 125px;
     padding: 15px;
+  }
+
+  .student-card {
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 11px;
+  }
+
+  .student-registration {
+    width: 100%;
+    margin-left: 51px;
+    text-align: left;
   }
 }
 
