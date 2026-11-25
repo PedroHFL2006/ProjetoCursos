@@ -37,7 +37,7 @@ export function HomePage() {
         </p>
 
         <nav className="resource-grid" aria-label="Navegação principal">
-          {visibleNavigation.map(({ label, href, icon: Icon }) => (
+          {navigation.map(({ label, href, icon: Icon }) => (
             <Link className="resource-card" key={href} to={href}>
               <span className="resource-icon"><Icon size={20} /></span>
               <span>{label}</span>
