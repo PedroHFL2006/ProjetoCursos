@@ -173,25 +173,23 @@ export function ProfessoresPage() {
             Voltar ao painel
           </Link>
 
-          {isAdmin && (
-            <button
-              onClick={handleOpenCreate}
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "8px",
-                padding: "8px 16px",
-                background: "#6366f1",
-                color: "#fff",
-                borderRadius: "8px",
-                border: "none",
-                cursor: "pointer",
-                fontWeight: 600,
-              }}
-            >
-              <Plus size={16} /> Novo Professor
-            </button>
-          )}
+          <button
+            onClick={handleOpenCreate}
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "8px",
+              padding: "8px 16px",
+              background: "#6366f1",
+              color: "#fff",
+              borderRadius: "8px",
+              border: "none",
+              cursor: "pointer",
+              fontWeight: 600,
+            }}
+          >
+            <Plus size={16} /> Novo Professor
+          </button>
         </div>
 
         <p className="eyebrow">CORPO DOCENTE</p>
@@ -234,42 +232,40 @@ export function ProfessoresPage() {
                   </span>
                 </div>
 
-                {isAdmin && (
-                  <div
+                <div
+                  style={{
+                    display: "flex",
+                    gap: "8px",
+                    alignItems: "center",
+                  }}
+                >
+                  <button
+                    onClick={() => handleOpenEdit(prof)}
                     style={{
-                      display: "flex",
-                      gap: "8px",
-                      alignItems: "center",
+                      background: "transparent",
+                      border: "none",
+                      color: "#94a3b8",
+                      cursor: "pointer",
+                      padding: "6px",
                     }}
+                    title="Editar"
                   >
-                    <button
-                      onClick={() => handleOpenEdit(prof)}
-                      style={{
-                        background: "transparent",
-                        border: "none",
-                        color: "#94a3b8",
-                        cursor: "pointer",
-                        padding: "6px",
-                      }}
-                      title="Editar"
-                    >
-                      <Edit2 size={16} />
-                    </button>
-                    <button
-                      onClick={() => handleDelete(prof.id, prof.usuario.nome)}
-                      style={{
-                        background: "transparent",
-                        border: "none",
-                        color: "#f43f5e",
-                        cursor: "pointer",
-                        padding: "6px",
-                      }}
-                      title="Excluir"
-                    >
-                      <Trash2 size={16} />
-                    </button>
-                  </div>
-                )}
+                    <Edit2 size={16} />
+                  </button>
+                  <button
+                    onClick={() => handleDelete(prof.id, prof.usuario.nome)}
+                    style={{
+                      background: "transparent",
+                      border: "none",
+                      color: "#f43f5e",
+                      cursor: "pointer",
+                      padding: "6px",
+                    }}
+                    title="Excluir"
+                  >
+                    <Trash2 size={16} />
+                  </button>
+                </div>
               </li>
             ))}
           </ul>

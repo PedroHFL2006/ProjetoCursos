@@ -165,25 +165,23 @@ export function StudentsPage() {
             Voltar ao painel
           </Link>
 
-          {isAdmin && (
-            <button
-              onClick={handleOpenCreate}
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "8px",
-                padding: "8px 16px",
-                background: "#6366f1",
-                color: "#fff",
-                borderRadius: "8px",
-                border: "none",
-                cursor: "pointer",
-                fontWeight: 600,
-              }}
-            >
-              <Plus size={16} /> Novo Aluno
-            </button>
-          )}
+          <button
+            onClick={handleOpenCreate}
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "8px",
+              padding: "8px 16px",
+              background: "#6366f1",
+              color: "#fff",
+              borderRadius: "8px",
+              border: "none",
+              cursor: "pointer",
+              fontWeight: 600,
+            }}
+          >
+            <Plus size={16} /> Novo Aluno
+          </button>
         </div>
 
         {role !== "ADMIN" && role !== "PROFESSOR" ? (
@@ -252,44 +250,42 @@ export function StudentsPage() {
                       </span>
                     </div>
 
-                    {isAdmin && (
-                      <div
+                    <div
+                      style={{
+                        display: "flex",
+                        gap: "8px",
+                        alignItems: "center",
+                      }}
+                    >
+                      <button
+                        onClick={() => handleOpenEdit(student)}
                         style={{
-                          display: "flex",
-                          gap: "8px",
-                          alignItems: "center",
+                          background: "transparent",
+                          border: "none",
+                          color: "#94a3b8",
+                          cursor: "pointer",
+                          padding: "6px",
                         }}
+                        title="Editar"
                       >
-                        <button
-                          onClick={() => handleOpenEdit(student)}
-                          style={{
-                            background: "transparent",
-                            border: "none",
-                            color: "#94a3b8",
-                            cursor: "pointer",
-                            padding: "6px",
-                          }}
-                          title="Editar"
-                        >
-                          <Edit2 size={16} />
-                        </button>
-                        <button
-                          onClick={() =>
-                            handleDelete(student.id, student.usuario.nome)
-                          }
-                          style={{
-                            background: "transparent",
-                            border: "none",
-                            color: "#f43f5e",
-                            cursor: "pointer",
-                            padding: "6px",
-                          }}
-                          title="Excluir"
-                        >
-                          <Trash2 size={16} />
-                        </button>
-                      </div>
-                    )}
+                        <Edit2 size={16} />
+                      </button>
+                      <button
+                        onClick={() =>
+                          handleDelete(student.id, student.usuario.nome)
+                        }
+                        style={{
+                          background: "transparent",
+                          border: "none",
+                          color: "#f43f5e",
+                          cursor: "pointer",
+                          padding: "6px",
+                        }}
+                        title="Excluir"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
                   </li>
                 ))}
               </ul>

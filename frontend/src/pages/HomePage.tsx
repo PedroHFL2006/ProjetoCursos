@@ -13,12 +13,6 @@ const navigation = [
 
 export function HomePage() {
   const { session } = useAuth();
-  const visibleNavigation = navigation.filter(
-    ({ href }) =>
-      href !== "/alunos" ||
-      session?.user.role === "ADMIN" ||
-      session?.user.role === "PROFESSOR",
-  );
 
   return (
     <main className="workspace-page min-h-screen">
@@ -32,7 +26,7 @@ export function HomePage() {
         </p>
 
         <nav className="resource-grid" aria-label="Navegação principal">
-          {visibleNavigation.map(({ label, href, icon: Icon }) => (
+          {navigation.map(({ label, href, icon: Icon }) => (
             <Link className="resource-card" key={href} to={href}>
               <span className="resource-icon">
                 <Icon size={20} />
