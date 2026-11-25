@@ -2,6 +2,7 @@ import { ArrowLeft } from "lucide-react";
 import { Link, useParams } from "react-router-dom";
 
 import { WorkspaceHeader } from "../components/WorkspaceHeader";
+import { ProfessoresPage } from "./ProfessoresPage";
 import { StudentsPage } from "./StudentsPage";
 
 const resourceNames: Record<string, string> = {
@@ -15,8 +16,13 @@ export function ResourcePage() {
   const { resource = "" } = useParams();
   const title = resourceNames[resource];
 
+  // Roteamento interno para as entidades completas
   if (resource === "alunos") {
     return <StudentsPage />;
+  }
+
+  if (resource === "professores") {
+    return <ProfessoresPage />;
   }
 
   return (
@@ -38,7 +44,9 @@ export function ResourcePage() {
         ) : (
           <>
             <h1>Página não encontrada</h1>
-            <Link className="text-link" to="/">Voltar ao início</Link>
+            <Link className="text-link" to="/">
+              Voltar ao início
+            </Link>
           </>
         )}
       </section>

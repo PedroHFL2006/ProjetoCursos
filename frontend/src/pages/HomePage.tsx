@@ -1,9 +1,4 @@
-import {
-  BookOpen,
-  ClipboardList,
-  GraduationCap,
-  Users,
-} from "lucide-react";
+import { BookOpen, ClipboardList, GraduationCap, Users } from "lucide-react";
 import { Link } from "react-router-dom";
 
 import { useAuth } from "../auth/useAuth";
@@ -37,11 +32,15 @@ export function HomePage() {
         </p>
 
         <nav className="resource-grid" aria-label="Navegação principal">
-          {navigation.map(({ label, href, icon: Icon }) => (
+          {visibleNavigation.map(({ label, href, icon: Icon }) => (
             <Link className="resource-card" key={href} to={href}>
-              <span className="resource-icon"><Icon size={20} /></span>
+              <span className="resource-icon">
+                <Icon size={20} />
+              </span>
               <span>{label}</span>
-              <span className="resource-arrow" aria-hidden="true">→</span>
+              <span className="resource-arrow" aria-hidden="true">
+                →
+              </span>
             </Link>
           ))}
         </nav>
