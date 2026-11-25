@@ -1,10 +1,13 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { ArrowLeft, Edit2, Plus, Trash2, X } from "lucide-react";
 import { Link } from "react-router-dom";
+import { criarAlunoSchema } from "@projeto/shared";
 
 import { useAuth } from "../auth/useAuth";
 import { WorkspaceHeader } from "../components/WorkspaceHeader";
 import { api, getApiErrorMessage } from "../services/api";
+
+const updateStudentFormSchema = criarAlunoSchema.pick({ matricula: true });
 
 interface Student {
   id: string;
@@ -33,6 +36,7 @@ export function StudentsPage() {
   const [users, setUsers] = useState<UserOption[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [usersError, setUsersError] = useState("");
 
   // Modal (null = fechado; "create" = novo; Student = editando)
   const [modalMode, setModalMode] = useState<"create" | Student | null>(null);
@@ -47,7 +51,10 @@ export function StudentsPage() {
     setLoading(true);
     api
       .get<{ alunos: Student[] }>("/alunos")
-      .then(({ data }) => setStudents(data.alunos))
+      .then(({ data }) => {
+        setStudents(data.alunos);
+        setError("");
+      })
       .catch((requestError: unknown) =>
         setError(getApiErrorMessage(requestError)),
       )
@@ -63,7 +70,9 @@ export function StudentsPage() {
         .then(({ data }) =>
           setUsers(data.users.filter((u) => u.role === "ALUNO")),
         )
-        .catch(() => {});
+        .catch((requestError: unknown) =>
+          setUsersError(getApiErrorMessage(requestError)),
+        );
     }
   }, [role, isAdmin]);
 
@@ -93,18 +102,33 @@ export function StudentsPage() {
 
     try {
       if (modalMode === "create") {
-        await api.post("/alunos", {
+        const validation = criarAlunoSchema.safeParse({
           usuarioId: formUsuarioId,
           matricula: formMatricula,
         });
+        if (!validation.success) {
+          setFormError(validation.error.issues.map((issue) => issue.message).join(" "));
+          return;
+        }
+
+        await api.post("/alunos", validation.data);
       } else if (typeof modalMode === "object" && modalMode !== null) {
-        await api.put(`/alunos/${modalMode.id}`, {
+        const validation = updateStudentFormSchema.safeParse({
           matricula: formMatricula,
+        });
+        if (!validation.success) {
+          setFormError(validation.error.issues.map((issue) => issue.message).join(" "));
+          return;
+        }
+
+        await api.put(`/alunos/${modalMode.id}`, {
+          ...validation.data,
         });
       }
 
       handleCloseModal();
       loadStudents();
+      setError("");
     } catch (err) {
       setFormError(getApiErrorMessage(err));
     } finally {
@@ -121,7 +145,7 @@ export function StudentsPage() {
       await api.delete(`/alunos/${id}`);
       loadStudents();
     } catch (err) {
-      alert(getApiErrorMessage(err));
+      setError(getApiErrorMessage(err));
     }
   }
 
@@ -179,6 +203,14 @@ export function StudentsPage() {
                 ? "Alunos inscritos nos cursos que você ministra."
                 : "Alunos cadastrados na plataforma."}
             </p>
+            {usersError && (
+              <p
+                className="student-list-message student-list-error"
+                role="alert"
+              >
+                {usersError}
+              </p>
+            )}
 
             {loading ? (
               <p className="student-list-message">Carregando alunos...</p>
@@ -351,6 +383,7 @@ export function StudentsPage() {
                     value={formUsuarioId}
                     onChange={(e) => setFormUsuarioId(e.target.value)}
                     required
+                    disabled={users.length === 0}
                     style={{
                       width: "100%",
                       padding: "10px",
@@ -366,6 +399,9 @@ export function StudentsPage() {
                       </option>
                     ))}
                   </select>
+                  {users.length === 0 && !usersError && (
+                    <small>Não há usuários com perfil de aluno disponíveis.</small>
+                  )}
                 </div>
               )}
 
