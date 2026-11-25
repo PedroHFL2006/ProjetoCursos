@@ -1,23 +1,10 @@
-import type { AuthenticatedUser } from "../../config/jwt";
 import { HttpError } from "../../errors/HttpError";
 import { alunosRepository, type AlunoRecord } from "./alunos.repository";
 import type { CreateAlunoInput, UpdateAlunoInput } from "./alunos.schemas";
 
 export const alunosService = {
-  async list(authenticatedUser: AuthenticatedUser): Promise<AlunoRecord[]> {
-    if (authenticatedUser.role === "ADMIN") {
-      return alunosRepository.findAll();
-    }
-
-    if (authenticatedUser.role === "PROFESSOR") {
-      return alunosRepository.findForProfessor(authenticatedUser.id);
-    }
-
-    throw new HttpError(
-      403,
-      "FORBIDDEN",
-      "Você não tem permissão para visualizar a lista de alunos.",
-    );
+  async list(): Promise<AlunoRecord[]> {
+    return alunosRepository.findAll();
   },
 
   async findById(id: string): Promise<AlunoRecord> {

@@ -65,16 +65,16 @@ export function ProfessoresPage() {
   useEffect(() => {
     loadProfessores();
 
-    // Carrega usuários para o select do modal de criação
-    if (isAdmin) {
-      api
-        .get<{ users: UserOption[] }>("/usuarios")
-        .then(({ data }) =>
-          setUsers(data.users.filter((u) => u.role === "PROFESSOR")),
-        )
-        .catch((err) => setUsersError(getApiErrorMessage(err)));
-    }
-  }, [isAdmin]);
+    api
+      .get<{ users: UserOption[] }>("/usuarios")
+      .then(({ data }) => {
+        const selectableUsers = isAdmin
+          ? data.users.filter((user) => user.role === "PROFESSOR")
+          : data.users.filter((user) => user.id === session?.user.id);
+        setUsers(selectableUsers);
+      })
+      .catch((err) => setUsersError(getApiErrorMessage(err)));
+  }, [isAdmin, session?.user.id]);
 
   // Abre modal para Criar
   function handleOpenCreate() {

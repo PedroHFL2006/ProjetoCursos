@@ -41,7 +41,7 @@ async function createUser(
   return user.id;
 }
 
-describe("visibilidade da lista de alunos", () => {
+describe("acesso ao CRUD de alunos", () => {
   before(async () => {
     adminId = await createUser("Admin de teste", accountEmails.admin, "ADMIN");
     professorId = await createUser(
@@ -154,7 +154,7 @@ describe("visibilidade da lista de alunos", () => {
     await prisma.$disconnect();
   });
 
-  it("permite ao ADMIN listar todos e limita o PROFESSOR aos próprios cursos", async () => {
+  it("permite a ADMIN e PROFESSOR listar todos os alunos", async () => {
     const adminResponse = await fetch(`${baseUrl}/alunos`, {
       headers: { authorization: `Bearer ${adminToken}` },
     });
@@ -180,17 +180,26 @@ describe("visibilidade da lista de alunos", () => {
     };
 
     assert.equal(professorResponse.status, 200);
-    assert.deepEqual(
+    const professorListedEmails = new Set(
       professorBody.alunos.map((aluno) => aluno.usuario.email),
-      [accountEmails.enrolledStudent],
     );
+    assert.ok(professorListedEmails.has(accountEmails.enrolledStudent));
+    assert.ok(professorListedEmails.has(accountEmails.otherStudent));
   });
 
-  it("impede ALUNO de listar alunos e restringe usuários a si mesmos", async () => {
+  it("permite a ALUNO listar e operar registros mantendo usuários restritos", async () => {
     const studentsResponse = await fetch(`${baseUrl}/alunos`, {
       headers: { authorization: `Bearer ${studentToken}` },
     });
-    assert.equal(studentsResponse.status, 403);
+    const studentsBody = (await studentsResponse.json()) as {
+      alunos: Array<{ usuario: { email: string } }>;
+    };
+    assert.equal(studentsResponse.status, 200);
+    const studentListedEmails = new Set(
+      studentsBody.alunos.map((aluno) => aluno.usuario.email),
+    );
+    assert.ok(studentListedEmails.has(accountEmails.enrolledStudent));
+    assert.ok(studentListedEmails.has(accountEmails.otherStudent));
 
     const userListResponse = await fetch(`${baseUrl}/usuarios`, {
       headers: { authorization: `Bearer ${studentToken}` },
@@ -202,6 +211,44 @@ describe("visibilidade da lista de alunos", () => {
     assert.deepEqual(userListBody.users.map((user) => user.id), [
       enrolledStudentId,
     ]);
+
+    const createResponse = await fetch(`${baseUrl}/alunos`, {
+      method: "POST",
+      headers: {
+        authorization: `Bearer ${studentToken}`,
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({
+        usuarioId: otherProfessorId,
+        matricula: `C-${suffix}`,
+      }),
+    });
+    const createdAluno = (await createResponse.json()) as {
+      aluno: { id: string };
+    };
+    assert.equal(createResponse.status, 201);
+
+    const updateResponse = await fetch(
+      `${baseUrl}/alunos/${createdAluno.aluno.id}`,
+      {
+        method: "PUT",
+        headers: {
+          authorization: `Bearer ${studentToken}`,
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({ matricula: `D-${suffix}` }),
+      },
+    );
+    assert.equal(updateResponse.status, 200);
+
+    const deleteResponse = await fetch(
+      `${baseUrl}/alunos/${createdAluno.aluno.id}`,
+      {
+        method: "DELETE",
+        headers: { authorization: `Bearer ${studentToken}` },
+      },
+    );
+    assert.equal(deleteResponse.status, 204);
 
     const professorReadingStudent = await fetch(
       `${baseUrl}/usuarios/${enrolledStudentId}`,

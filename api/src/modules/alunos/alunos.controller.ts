@@ -21,7 +21,7 @@ export const listAlunosController: RequestHandler = async (
     throw new HttpError(401, "UNAUTHORIZED", "Autenticação necessária.");
   }
 
-  const alunos = await alunosService.list(request.authenticatedUser);
+  const alunos = await alunosService.list();
   return response.status(200).json({ alunos });
 };
 

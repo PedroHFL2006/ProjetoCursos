@@ -148,7 +148,10 @@ describe("POST /auth/register", () => {
     const studentsResponse = await fetch(`${baseUrl}/alunos`, {
       headers: { authorization: `Bearer ${token}` },
     });
-    assert.equal(studentsResponse.status, 403);
+    assert.equal(studentsResponse.status, 200);
+
+    const unauthenticatedStudents = await fetch(`${baseUrl}/alunos`);
+    assert.equal(unauthenticatedStudents.status, 401);
 
     const otherUserId = "00000000-0000-4000-8000-000000000001";
     const forbiddenUpdate = await fetch(

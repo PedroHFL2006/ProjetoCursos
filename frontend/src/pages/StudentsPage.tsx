@@ -29,8 +29,7 @@ interface UserOption {
 
 export function StudentsPage() {
   const { session } = useAuth();
-  const role = session?.user.role;
-  const isAdmin = role === "ADMIN";
+  const isAdmin = session?.user.role === "ADMIN";
 
   const [students, setStudents] = useState<Student[]>([]);
   const [users, setUsers] = useState<UserOption[]>([]);
@@ -46,8 +45,6 @@ export function StudentsPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   function loadStudents() {
-    if (role !== "ADMIN" && role !== "PROFESSOR") return;
-
     setLoading(true);
     api
       .get<{ alunos: Student[] }>("/alunos")
@@ -64,17 +61,18 @@ export function StudentsPage() {
   useEffect(() => {
     loadStudents();
 
-    if (isAdmin) {
-      api
-        .get<{ users: UserOption[] }>("/usuarios")
-        .then(({ data }) =>
-          setUsers(data.users.filter((u) => u.role === "ALUNO")),
-        )
-        .catch((requestError: unknown) =>
-          setUsersError(getApiErrorMessage(requestError)),
-        );
-    }
-  }, [role, isAdmin]);
+    api
+      .get<{ users: UserOption[] }>("/usuarios")
+      .then(({ data }) => {
+        const selectableUsers = isAdmin
+          ? data.users.filter((user) => user.role === "ALUNO")
+          : data.users.filter((user) => user.id === session?.user.id);
+        setUsers(selectableUsers);
+      })
+      .catch((requestError: unknown) =>
+        setUsersError(getApiErrorMessage(requestError)),
+      );
+  }, [isAdmin, session?.user.id]);
 
   function handleOpenCreate() {
     setModalMode("create");
@@ -184,113 +182,89 @@ export function StudentsPage() {
           </button>
         </div>
 
-        {role !== "ADMIN" && role !== "PROFESSOR" ? (
-          <>
-            <p className="eyebrow">ACESSO RESTRITO</p>
-            <h1>Alunos</h1>
-            <p className="workspace-intro">
-              Seu perfil não tem permissão para visualizar a lista de alunos.
-            </p>
-          </>
+        <p className="eyebrow">GESTÃO ACADÊMICA</p>
+        <h1>Alunos</h1>
+        <p className="workspace-intro">Alunos cadastrados na plataforma.</p>
+        {usersError && (
+          <p className="student-list-message student-list-error" role="alert">
+            {usersError}
+          </p>
+        )}
+
+        {loading ? (
+          <p className="student-list-message">Carregando alunos...</p>
+        ) : error ? (
+          <p className="student-list-message student-list-error" role="alert">
+            {error}
+          </p>
+        ) : students.length === 0 ? (
+          <p className="student-list-message">Nenhum aluno cadastrado.</p>
         ) : (
-          <>
-            <p className="eyebrow">GESTÃO ACADÊMICA</p>
-            <h1>Alunos</h1>
-            <p className="workspace-intro">
-              {role === "PROFESSOR"
-                ? "Alunos inscritos nos cursos que você ministra."
-                : "Alunos cadastrados na plataforma."}
-            </p>
-            {usersError && (
-              <p
-                className="student-list-message student-list-error"
-                role="alert"
+          <ul className="student-list">
+            {students.map((student) => (
+              <li
+                className="student-card"
+                key={student.id}
+                style={{ display: "flex", justifyContent: "space-between" }}
               >
-                {usersError}
-              </p>
-            )}
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "16px",
+                  }}
+                >
+                  <span className="student-avatar" aria-hidden="true">
+                    {student.usuario.nome.charAt(0).toUpperCase()}
+                  </span>
+                  <span className="student-details">
+                    <strong>{student.usuario.nome}</strong>
+                    <span>{student.usuario.email}</span>
+                  </span>
+                  <span className="student-registration">
+                    Matrícula {student.matricula}
+                  </span>
+                </div>
 
-            {loading ? (
-              <p className="student-list-message">Carregando alunos...</p>
-            ) : error ? (
-              <p
-                className="student-list-message student-list-error"
-                role="alert"
-              >
-                {error}
-              </p>
-            ) : students.length === 0 ? (
-              <p className="student-list-message">
-                Nenhum aluno encontrado para esta área.
-              </p>
-            ) : (
-              <ul className="student-list">
-                {students.map((student) => (
-                  <li
-                    className="student-card"
-                    key={student.id}
-                    style={{ display: "flex", justifyContent: "space-between" }}
+                <div
+                  style={{
+                    display: "flex",
+                    gap: "8px",
+                    alignItems: "center",
+                  }}
+                >
+                  <button
+                    onClick={() => handleOpenEdit(student)}
+                    style={{
+                      background: "transparent",
+                      border: "none",
+                      color: "#94a3b8",
+                      cursor: "pointer",
+                      padding: "6px",
+                    }}
+                    title="Editar"
                   >
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "16px",
-                      }}
-                    >
-                      <span className="student-avatar" aria-hidden="true">
-                        {student.usuario.nome.charAt(0).toUpperCase()}
-                      </span>
-                      <span className="student-details">
-                        <strong>{student.usuario.nome}</strong>
-                        <span>{student.usuario.email}</span>
-                      </span>
-                      <span className="student-registration">
-                        Matrícula {student.matricula}
-                      </span>
-                    </div>
-
-                    <div
-                      style={{
-                        display: "flex",
-                        gap: "8px",
-                        alignItems: "center",
-                      }}
-                    >
-                      <button
-                        onClick={() => handleOpenEdit(student)}
-                        style={{
-                          background: "transparent",
-                          border: "none",
-                          color: "#94a3b8",
-                          cursor: "pointer",
-                          padding: "6px",
-                        }}
-                        title="Editar"
-                      >
-                        <Edit2 size={16} />
-                      </button>
-                      <button
-                        onClick={() =>
-                          handleDelete(student.id, student.usuario.nome)
-                        }
-                        style={{
-                          background: "transparent",
-                          border: "none",
-                          color: "#f43f5e",
-                          cursor: "pointer",
-                          padding: "6px",
-                        }}
-                        title="Excluir"
-                      >
-                        <Trash2 size={16} />
-                      </button>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </>
+                    <Edit2 size={16} />
+                  </button>
+                  <button
+                    onClick={() =>
+                      handleDelete(student.id, student.usuario.nome)
+                    }
+                    style={{
+                      background: "transparent",
+                      border: "none",
+                      color: "#f43f5e",
+                      cursor: "pointer",
+                      padding: "6px",
+                    }}
+                    title="Excluir"
+                  >
+                    <Trash2 size={16} />
+                  </button>
+                </div>
+              </li>
+            ))}
+          </ul>
         )}
       </section>
 
