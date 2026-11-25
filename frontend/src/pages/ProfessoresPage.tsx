@@ -1,10 +1,16 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { ArrowLeft, Edit2, Plus, Trash2, X } from "lucide-react";
 import { Link } from "react-router-dom";
+import { criarProfessorSchema } from "@projeto/shared";
 
 import { useAuth } from "../auth/useAuth";
 import { WorkspaceHeader } from "../components/WorkspaceHeader";
 import { api, getApiErrorMessage } from "../services/api";
+
+const updateProfessorFormSchema = criarProfessorSchema.pick({
+  especialidade: true,
+  biografia: true,
+});
 
 interface Professor {
   id: string;
@@ -33,6 +39,7 @@ export function ProfessoresPage() {
   const [users, setUsers] = useState<UserOption[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [usersError, setUsersError] = useState("");
 
   // Estado do Modal (null = fechado; "create" = novo; Professor = editando)
   const [modalMode, setModalMode] = useState<"create" | Professor | null>(null);
@@ -47,7 +54,10 @@ export function ProfessoresPage() {
     setLoading(true);
     api
       .get<{ professores: Professor[] }>("/professores")
-      .then(({ data }) => setProfessores(data.professores))
+      .then(({ data }) => {
+        setProfessores(data.professores);
+        setError("");
+      })
       .catch((err) => setError(getApiErrorMessage(err)))
       .finally(() => setLoading(false));
   }
@@ -62,7 +72,7 @@ export function ProfessoresPage() {
         .then(({ data }) =>
           setUsers(data.users.filter((u) => u.role === "PROFESSOR")),
         )
-        .catch(() => {});
+        .catch((err) => setUsersError(getApiErrorMessage(err)));
     }
   }, [isAdmin]);
 
@@ -97,20 +107,35 @@ export function ProfessoresPage() {
 
     try {
       if (modalMode === "create") {
-        await api.post("/professores", {
+        const validation = criarProfessorSchema.safeParse({
           usuarioId: formUsuarioId,
           especialidade: formEspecialidade,
           biografia: formBiografia || undefined,
         });
+        if (!validation.success) {
+          setFormError(validation.error.issues.map((issue) => issue.message).join(" "));
+          return;
+        }
+
+        await api.post("/professores", validation.data);
       } else if (typeof modalMode === "object" && modalMode !== null) {
-        await api.put(`/professores/${modalMode.id}`, {
+        const validation = updateProfessorFormSchema.safeParse({
           especialidade: formEspecialidade,
-          biografia: formBiografia || null,
+          biografia: formBiografia,
+        });
+        if (!validation.success) {
+          setFormError(validation.error.issues.map((issue) => issue.message).join(" "));
+          return;
+        }
+
+        await api.put(`/professores/${modalMode.id}`, {
+          ...validation.data,
         });
       }
 
       handleCloseModal();
       loadProfessores();
+      setError("");
     } catch (err) {
       setFormError(getApiErrorMessage(err));
     } finally {
@@ -128,7 +153,7 @@ export function ProfessoresPage() {
       await api.delete(`/professores/${id}`);
       loadProfessores();
     } catch (err) {
-      alert(getApiErrorMessage(err));
+      setError(getApiErrorMessage(err));
     }
   }
 
@@ -174,6 +199,11 @@ export function ProfessoresPage() {
         <p className="workspace-intro">
           Gerencie os professores e instrutores da plataforma.
         </p>
+        {usersError && (
+          <p className="student-list-message student-list-error" role="alert">
+            {usersError}
+          </p>
+        )}
 
         {loading ? (
           <p className="student-list-message">Carregando professores...</p>
@@ -331,6 +361,7 @@ export function ProfessoresPage() {
                     value={formUsuarioId}
                     onChange={(e) => setFormUsuarioId(e.target.value)}
                     required
+                    disabled={users.length === 0}
                     style={{
                       width: "100%",
                       padding: "10px",
@@ -346,6 +377,9 @@ export function ProfessoresPage() {
                       </option>
                     ))}
                   </select>
+                  {users.length === 0 && !usersError && (
+                    <small>Não há usuários com perfil de professor disponíveis.</small>
+                  )}
                 </div>
               )}
 
