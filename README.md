@@ -6,9 +6,12 @@
 
 Preencha os nomes completos, RGMs e contribuições de todos os integrantes antes da entrega.
 
-| Nome completo | RGM | Contribuição |
-| --- | --- | --- |
-| Preencher | Preencher | Preencher |
+| Nome completo  | RGM      | Contribuição                                                                                                                                   |
+| -------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| Pedro Henrique | 40111831 | Setup do monorepo e Docker (Etapa 1), Prisma/Migrations/Seed (Etapa 2), CRUD de Professores/Alunos (Etapa 5) e Builds/Ajustes finais (Etapa 7) |
+| Antony Ryck    | 39983684 | Frontend base, contexto de autenticação, telas de Login e Cadastro (Etapa 4)                                                                   |
+| Fábio Nóbrega  | 40823181 | CRUD de Cursos e Inscrições ponta a ponta, busca com .filter() e selects dinâmicos (Etapa 6)                                                   |
+| Heitor Javert  | 40464181 | Fundação da API, rotas de autenticação, hash bcrypt e middlewares de erro/validação (Etapa 3)                                                  |
 
 ## Sobre o projeto
 
@@ -20,7 +23,12 @@ Monorepo para uma plataforma de cursos livres, com `shared`, `api` e `frontend` 
 - **Frontend:** React, Vite e TypeScript; chamadas HTTP com Axios.
 - **Autenticação:** JWT e senhas protegidas com bcrypt.
 
-Os modelos principais são `Usuario`, `Professor`, `Aluno`, `Curso` e `Inscricao`. Um curso pertence a um professor; uma inscrição relaciona um aluno e um curso.
+Tema: Cursos Livres
+Usuario: tabela de autenticação e login (com senha em bcrypt e e-mail @unique).
+Professor: tabela base (vinculada a Usuario via usuarioId).
+Aluno: tabela base (vinculada a Usuario via usuarioId, com matricula @unique).
+Curso: Curso → Professor (possui a chave estrangeira professorId).
+Inscricao: Inscricao → Aluno e Curso (tabela ligada a duas outras, possui as chaves alunoId e cursoId, com restrição de unicidade composta).
 
 ## Requisitos
 
@@ -103,15 +111,17 @@ npm run dev -w frontend
 
 Abra o endereço informado pelo Vite, normalmente `http://localhost:5173`.
 
+📖 Documentação Swagger: com a API rodando, acesse http://localhost:3001/docs para visualizar e testar todos os endpoints.
+
 ### 6. Acessar com uma conta do seed
 
 As contas de teste usam a mesma senha:
 
-| Perfil | E-mail | Senha |
-| --- | --- | --- |
-| Administrador | `admin@email.com` | `123456` |
-| Professor | `professor@email.com` | `123456` |
-| Aluno | `aluno@gmail.com` | `123456` |
+| Perfil        | E-mail                | Senha    |
+| ------------- | --------------------- | -------- |
+| Administrador | `admin@email.com`     | `123456` |
+| Professor     | `professor@email.com` | `123456` |
+| Aluno         | `aluno@gmail.com`     | `123456` |
 
 O cadastro pela tela cria uma conta com perfil de aluno. A lista de alunos fica disponível para administradores e para professores, limitada a alunos inscritos em cursos próprios.
 
@@ -139,4 +149,12 @@ Para apagar também os dados persistidos do banco, use `docker compose down -v`.
 
 ## Estado atual
 
-Cadastro, login, gerenciamento de usuários e a listagem de alunos com controle por perfil estão implementados. As páginas de Professores, Cursos e Inscrições ainda são áreas placeholder; seus CRUDs e a documentação Swagger ainda precisam ser implementados para completar todos os requisitos da atividade.
+Todas as etapas do projeto estão implementadas e funcionando:
+
+- ✅ **Etapa 1 — Monorepo:** Estrutura de workspaces com `shared`, `api` e `frontend`; schemas Zod compartilhados; Docker Compose com PostgreSQL.
+- ✅ **Etapa 2 — Banco de dados:** Schema Prisma com os cinco modelos (`Usuario`, `Professor`, `Aluno`, `Curso`, `Inscricao`); migrations e seed aplicados.
+- ✅ **Etapa 3 — API base:** Servidor Express com autenticação JWT, middlewares de erro e validação, e CRUD de usuários.
+- ✅ **Etapa 4 — Frontend base:** Vite + React + Tailwind; contexto de autenticação; páginas de Login e Cadastro.
+- ✅ **Etapa 5 — Professores e Alunos:** CRUD completo no backend e frontend para professores e alunos.
+- ✅ **Etapa 6 — Cursos e Inscrições:** CRUD completo no backend e frontend para cursos e inscrições; busca textual client-side com `.filter()`; selects dinâmicos para relacionamentos.
+- ✅ **Etapa 7 — Swagger e builds:** Documentação interativa da API disponível em `/docs`; builds da API e do frontend passando com zero erros.
