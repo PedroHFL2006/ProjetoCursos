@@ -29,26 +29,6 @@ export const alunosRepository = {
     });
   },
 
-  findForProfessor(usuarioId: string): Promise<AlunoRecord[]> {
-    return prisma.aluno.findMany({
-      where: {
-        inscricoes: {
-          some: {
-            curso: {
-              is: {
-                professor: {
-                  is: { usuarioId },
-                },
-              },
-            },
-          },
-        },
-      },
-      select: alunoSelect,
-      orderBy: { usuario: { nome: "asc" } },
-    });
-  },
-
   findById(id: string): Promise<AlunoRecord | null> {
     return prisma.aluno.findUnique({
       where: { id },

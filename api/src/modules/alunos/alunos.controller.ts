@@ -1,6 +1,16 @@
 import type { RequestHandler } from "express";
 import { HttpError } from "../../errors/HttpError";
 import { alunosService } from "./alunos.service";
+import { alunoIdSchema } from "./alunos.schemas";
+
+function parseAlunoId(value: unknown): string {
+  const result = alunoIdSchema.safeParse(value);
+  if (!result.success) {
+    throw new HttpError(400, "VALIDATION_ERROR", "ID de aluno inválido.");
+  }
+
+  return result.data;
+}
 
 // GET /alunos -> 200
 export const listAlunosController: RequestHandler = async (
@@ -11,7 +21,7 @@ export const listAlunosController: RequestHandler = async (
     throw new HttpError(401, "UNAUTHORIZED", "Autenticação necessária.");
   }
 
-  const alunos = await alunosService.list(request.authenticatedUser);
+  const alunos = await alunosService.list();
   return response.status(200).json({ alunos });
 };
 
@@ -20,7 +30,7 @@ export const getAlunoByIdController: RequestHandler = async (
   request,
   response,
 ) => {
-  const id = String(request.params.id);
+  const id = parseAlunoId(request.params.id);
   const aluno = await alunosService.findById(id);
   return response.status(200).json({ aluno });
 };
@@ -39,7 +49,7 @@ export const updateAlunoController: RequestHandler = async (
   request,
   response,
 ) => {
-  const id = String(request.params.id);
+  const id = parseAlunoId(request.params.id);
   const aluno = await alunosService.update(id, request.body);
   return response.status(200).json({ aluno });
 };
@@ -49,7 +59,7 @@ export const deleteAlunoController: RequestHandler = async (
   request,
   response,
 ) => {
-  const id = String(request.params.id);
+  const id = parseAlunoId(request.params.id);
   await alunosService.delete(id);
   return response.status(204).send();
 };

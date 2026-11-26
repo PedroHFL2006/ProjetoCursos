@@ -1,10 +1,16 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { ArrowLeft, Edit2, Plus, Trash2, X } from "lucide-react";
 import { Link } from "react-router-dom";
+import { criarProfessorSchema } from "@projeto/shared";
 
 import { useAuth } from "../auth/useAuth";
 import { WorkspaceHeader } from "../components/WorkspaceHeader";
 import { api, getApiErrorMessage } from "../services/api";
+
+const updateProfessorFormSchema = criarProfessorSchema.pick({
+  especialidade: true,
+  biografia: true,
+});
 
 interface Professor {
   id: string;
@@ -33,6 +39,7 @@ export function ProfessoresPage() {
   const [users, setUsers] = useState<UserOption[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [usersError, setUsersError] = useState("");
 
   // Estado do Modal (null = fechado; "create" = novo; Professor = editando)
   const [modalMode, setModalMode] = useState<"create" | Professor | null>(null);
@@ -47,7 +54,10 @@ export function ProfessoresPage() {
     setLoading(true);
     api
       .get<{ professores: Professor[] }>("/professores")
-      .then(({ data }) => setProfessores(data.professores))
+      .then(({ data }) => {
+        setProfessores(data.professores);
+        setError("");
+      })
       .catch((err) => setError(getApiErrorMessage(err)))
       .finally(() => setLoading(false));
   }
@@ -55,16 +65,16 @@ export function ProfessoresPage() {
   useEffect(() => {
     loadProfessores();
 
-    // Carrega usuários para o select do modal de criação
-    if (isAdmin) {
-      api
-        .get<{ users: UserOption[] }>("/usuarios")
-        .then(({ data }) =>
-          setUsers(data.users.filter((u) => u.role === "PROFESSOR")),
-        )
-        .catch(() => {});
-    }
-  }, [isAdmin]);
+    api
+      .get<{ users: UserOption[] }>("/usuarios")
+      .then(({ data }) => {
+        const selectableUsers = isAdmin
+          ? data.users.filter((user) => user.role === "PROFESSOR")
+          : data.users.filter((user) => user.id === session?.user.id);
+        setUsers(selectableUsers);
+      })
+      .catch((err) => setUsersError(getApiErrorMessage(err)));
+  }, [isAdmin, session?.user.id]);
 
   // Abre modal para Criar
   function handleOpenCreate() {
@@ -97,20 +107,35 @@ export function ProfessoresPage() {
 
     try {
       if (modalMode === "create") {
-        await api.post("/professores", {
+        const validation = criarProfessorSchema.safeParse({
           usuarioId: formUsuarioId,
           especialidade: formEspecialidade,
           biografia: formBiografia || undefined,
         });
+        if (!validation.success) {
+          setFormError(validation.error.issues.map((issue) => issue.message).join(" "));
+          return;
+        }
+
+        await api.post("/professores", validation.data);
       } else if (typeof modalMode === "object" && modalMode !== null) {
-        await api.put(`/professores/${modalMode.id}`, {
+        const validation = updateProfessorFormSchema.safeParse({
           especialidade: formEspecialidade,
-          biografia: formBiografia || null,
+          biografia: formBiografia,
+        });
+        if (!validation.success) {
+          setFormError(validation.error.issues.map((issue) => issue.message).join(" "));
+          return;
+        }
+
+        await api.put(`/professores/${modalMode.id}`, {
+          ...validation.data,
         });
       }
 
       handleCloseModal();
       loadProfessores();
+      setError("");
     } catch (err) {
       setFormError(getApiErrorMessage(err));
     } finally {
@@ -128,7 +153,7 @@ export function ProfessoresPage() {
       await api.delete(`/professores/${id}`);
       loadProfessores();
     } catch (err) {
-      alert(getApiErrorMessage(err));
+      setError(getApiErrorMessage(err));
     }
   }
 
@@ -148,25 +173,23 @@ export function ProfessoresPage() {
             Voltar ao painel
           </Link>
 
-          {isAdmin && (
-            <button
-              onClick={handleOpenCreate}
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "8px",
-                padding: "8px 16px",
-                background: "#6366f1",
-                color: "#fff",
-                borderRadius: "8px",
-                border: "none",
-                cursor: "pointer",
-                fontWeight: 600,
-              }}
-            >
-              <Plus size={16} /> Novo Professor
-            </button>
-          )}
+          <button
+            onClick={handleOpenCreate}
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "8px",
+              padding: "8px 16px",
+              background: "#6366f1",
+              color: "#fff",
+              borderRadius: "8px",
+              border: "none",
+              cursor: "pointer",
+              fontWeight: 600,
+            }}
+          >
+            <Plus size={16} /> Novo Professor
+          </button>
         </div>
 
         <p className="eyebrow">CORPO DOCENTE</p>
@@ -174,6 +197,11 @@ export function ProfessoresPage() {
         <p className="workspace-intro">
           Gerencie os professores e instrutores da plataforma.
         </p>
+        {usersError && (
+          <p className="student-list-message student-list-error" role="alert">
+            {usersError}
+          </p>
+        )}
 
         {loading ? (
           <p className="student-list-message">Carregando professores...</p>
@@ -204,42 +232,40 @@ export function ProfessoresPage() {
                   </span>
                 </div>
 
-                {isAdmin && (
-                  <div
+                <div
+                  style={{
+                    display: "flex",
+                    gap: "8px",
+                    alignItems: "center",
+                  }}
+                >
+                  <button
+                    onClick={() => handleOpenEdit(prof)}
                     style={{
-                      display: "flex",
-                      gap: "8px",
-                      alignItems: "center",
+                      background: "transparent",
+                      border: "none",
+                      color: "#94a3b8",
+                      cursor: "pointer",
+                      padding: "6px",
                     }}
+                    title="Editar"
                   >
-                    <button
-                      onClick={() => handleOpenEdit(prof)}
-                      style={{
-                        background: "transparent",
-                        border: "none",
-                        color: "#94a3b8",
-                        cursor: "pointer",
-                        padding: "6px",
-                      }}
-                      title="Editar"
-                    >
-                      <Edit2 size={16} />
-                    </button>
-                    <button
-                      onClick={() => handleDelete(prof.id, prof.usuario.nome)}
-                      style={{
-                        background: "transparent",
-                        border: "none",
-                        color: "#f43f5e",
-                        cursor: "pointer",
-                        padding: "6px",
-                      }}
-                      title="Excluir"
-                    >
-                      <Trash2 size={16} />
-                    </button>
-                  </div>
-                )}
+                    <Edit2 size={16} />
+                  </button>
+                  <button
+                    onClick={() => handleDelete(prof.id, prof.usuario.nome)}
+                    style={{
+                      background: "transparent",
+                      border: "none",
+                      color: "#f43f5e",
+                      cursor: "pointer",
+                      padding: "6px",
+                    }}
+                    title="Excluir"
+                  >
+                    <Trash2 size={16} />
+                  </button>
+                </div>
               </li>
             ))}
           </ul>
@@ -331,6 +357,7 @@ export function ProfessoresPage() {
                     value={formUsuarioId}
                     onChange={(e) => setFormUsuarioId(e.target.value)}
                     required
+                    disabled={users.length === 0}
                     style={{
                       width: "100%",
                       padding: "10px",
@@ -346,6 +373,9 @@ export function ProfessoresPage() {
                       </option>
                     ))}
                   </select>
+                  {users.length === 0 && !usersError && (
+                    <small>Não há usuários com perfil de professor disponíveis.</small>
+                  )}
                 </div>
               )}
 
