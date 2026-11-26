@@ -6,9 +6,9 @@
 
 Preencha os nomes completos, RGMs e contribuições de todos os integrantes antes da entrega.
 
-| Nome completo | RGM | Contribuição |
-| --- | --- | --- |
-| Preencher | Preencher | Preencher |
+| Nome completo | RGM       | Contribuição |
+| ------------- | --------- | ------------ |
+| Preencher     | Preencher | Preencher    |
 
 ## Sobre o projeto
 
@@ -107,11 +107,11 @@ Abra o endereço informado pelo Vite, normalmente `http://localhost:5173`.
 
 As contas de teste usam a mesma senha:
 
-| Perfil | E-mail | Senha |
-| --- | --- | --- |
-| Administrador | `admin@email.com` | `123456` |
-| Professor | `professor@email.com` | `123456` |
-| Aluno | `aluno@gmail.com` | `123456` |
+| Perfil        | E-mail                | Senha    |
+| ------------- | --------------------- | -------- |
+| Administrador | `admin@email.com`     | `123456` |
+| Professor     | `professor@email.com` | `123456` |
+| Aluno         | `aluno@gmail.com`     | `123456` |
 
 O cadastro pela tela cria uma conta com perfil de aluno. A lista de alunos fica disponível para administradores e para professores, limitada a alunos inscritos em cursos próprios.
 
