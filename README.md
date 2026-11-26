@@ -1,6 +1,6 @@
 # Sistema de Cursos Livres
 
-> **Vídeo da apresentação:** preencher com o link do YouTube não listado ou Google Drive.
+> **Vídeo da apresentação:** [Vídeo da Apresentação no Google Drive](https://drive.google.com/file/d/1mL6WFlLXF_Htx-p4dq8hOu6FI7JqiaNb/view?usp=drive_link)
 
 ## Integrantes
 
