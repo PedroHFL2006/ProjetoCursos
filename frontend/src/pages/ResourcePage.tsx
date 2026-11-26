@@ -2,6 +2,8 @@ import { ArrowLeft } from "lucide-react";
 import { Link, useParams } from "react-router-dom";
 
 import { WorkspaceHeader } from "../components/WorkspaceHeader";
+import { CursosPage } from "./CursosPage";
+import { InscricoesPage } from "./InscricoesPage";
 import { ProfessoresPage } from "./ProfessoresPage";
 import { StudentsPage } from "./StudentsPage";
 
@@ -23,6 +25,14 @@ export function ResourcePage() {
 
   if (resource === "professores") {
     return <ProfessoresPage />;
+  }
+
+  if (resource === "cursos") {
+    return <CursosPage />;
+  }
+
+  if (resource === "inscricoes") {
+    return <InscricoesPage />;
   }
 
   return (
