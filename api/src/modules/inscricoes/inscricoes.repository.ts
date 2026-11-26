@@ -73,9 +73,15 @@ export const inscricoesRepository = {
       where: { id },
       data: {
         ...data,
+        concluidoEm:
+          typeof data.concluidoEm === "string"
+            ? new Date(data.concluidoEm)
+            : data.concluidoEm,
+=======
         concluidoEm: data.concluidoEm
           ? new Date(data.concluidoEm)
           : data.concluidoEm,
+>>>>>>> a0862964d20fa57c39aeba8d1bb4ce3c40069973
       },
       include: inscricaoInclude,
     });

@@ -5,7 +5,6 @@
   "scripts": {
     "dev": "tsx watch src/server.ts",
     "build": "tsc",
-    "test": "npm run build --workspace=@projeto/shared && tsx --test tests/middlewares.test.ts tests/register.test.ts tests/student-visibility.test.ts",
     "prisma:migrate": "prisma migrate dev",
     "prisma:generate": "prisma generate",
     "prisma:seed": "prisma db seed",
@@ -21,7 +20,8 @@
     "cors": "^2.8.6",
     "dotenv": "^16.4.5",
     "express": "^5.3.0",
-    "jsonwebtoken": "^9.0.3"
+    "jsonwebtoken": "^9.0.3",
+    "swagger-ui-express": "^5.0.1"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
@@ -29,6 +29,7 @@
     "@types/express": "^5.0.6",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^20.12.12",
+    "@types/swagger-ui-express": "^4.1.7",
     "prisma": "^5.14.0",
     "tsx": "^4.10.5",
     "typescript": "^5.4.5"
